@@ -74,7 +74,9 @@ exampleC2 = [
     [0,0,0,0,0,0,0,1,0,0]
 ];
 
-pv = log_likelihood(exampleA1,exampleA2)
+pv = log_post(exampleB1,exampleB2)
+pv = 10.^pv
+pv = log(pv/sum(sum(pv)))
 h= heatmap(-2:2,-2:2,pv)
 h.Colormap=autumn
 h.CellLabelColor='none'
@@ -91,6 +93,24 @@ for vx=-2:2
                 end     
             end 
         end 
+        log_like(vx+3,vy+3) = log_like(vx+3,vy+3);
+    end   
+end
+end
+
+function log_like = log_post(I1,I2)
+log_like = zeros(5,5)
+for vx=-2:2
+    for vy=-2:2
+        for px = 1:10
+            for py= 1:10
+                if px+vx<=10 && px+vx>=1 && py+vy>=1 && py+vy<=10
+                    p = exp(-1*(I1(px,py)-I2(px+vx,py+vy))^2/(2*.5^2));
+                    log_like(vx+3,vy+3) = log_like(vx+3,vy+3)+log(p);
+                end     
+            end 
+        end 
+        log_like(vx+3,vy+3) = log_like(vx+3,vy+3) +log(exp(-1/(2*.5)*(vx^2+vy^2)));
     end   
 end
 end
