@@ -1,0 +1,20 @@
+measurement = [.75,-.6,1.4,-.2];
+up = [0,1,0,1];
+down = [0,-1,0,-1];
+left = [-1,0,-1,0];
+right = [1,0,1,0];
+dir = [up,down,left,right];
+
+
+
+function p=posterior(meas,sig)
+p = zeros(4,1);
+rx = meas(1);
+ry = meas(2);
+bx = meas(3);
+by = meas(4);
+for d=1:4
+    prx_d = normpdf(rx,)
+end
+
+end
