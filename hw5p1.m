@@ -8,7 +8,7 @@ posterior_est(20)
 
 function posterior_est(S)
 posterior = zeros(2,2);
-for x=1:10000
+for x=1:100000
     I = normrnd(100,15); % Normal(mean=100, sd=15)
     M = rand < 1/(1+exp(-(I-110)/5)); % = 1 if Major=compsci, 0 if Major=business
     U = rand < 1/(1+exp(-(I-100)/5)); % = 1 if University=cu, 0 if University=metro

@@ -4,10 +4,10 @@ sig_y = 3;
 mu_x = 1;
 mu_y = 0;
 
-X = 1;
-Y = 0;
+X = randn();
+Y = 0.4;
 
-for n=1:100000
+for n=1:10000
     mu = mu_x + sig_xy*inv(sig_y)*(Y(1)-mu_y);
     sig = sig_x-sig_xy*inv(sig_y)*sig_xy;
     X(n+1) = normrnd(mu,sig);
@@ -18,7 +18,12 @@ for n=1:100000
 end
 
 figure
-histogram(X(1000:100000),'Nomalization',pdf')
+hold on
+histogram(X(1000:10000),'Normalization','pdf')
+plot(-10:.1:10,normpdf(-10:.1:10,1,1))
+
 figure
-histogram(Y(1000:100000),'pdf')
+hold on
+histogram(Y(1000:10000),'Normalization','pdf')
+plot(-10:.1:10,normpdf(-10:.1:10,0,3))
 
