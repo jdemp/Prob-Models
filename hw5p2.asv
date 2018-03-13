@@ -1,0 +1,15 @@
+sig_x = 1;
+sig_xy = -.5;
+sig_y = 3;
+mu_x = 1;
+mu_y = 0;
+
+X = 1;
+Y = 0;
+
+for n=1:1000
+    mu = mu_x + sig_xy
+    X(n) = normrnd(  
+end
+
+
