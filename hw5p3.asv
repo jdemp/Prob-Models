@@ -1,0 +1,13 @@
+clear all
+import brml.*
+% Do Metropolis sampling:
+L=20000; % number of samples
+x(:,1)=randn(2,1); % intial sample
+s=2; % width of Metropolis candidate distribution
+hold on
+for l=2:L
+	x(:,l)=metropolis(x(:,l-1),s,'fgprob');
+end
+
+plot(x(1,:),x(2,:),'.');
+
