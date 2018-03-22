@@ -16,9 +16,19 @@ sig = np.float32(np.sqrt(10))
 X2 = ed.models.Normal(loc=mean_x2,scale=sig)
 X3 = ed.models.Normal(loc=mean_x3,scale=sig)
 
-part1 = ed.models.Bernoulli(probs=tf.nn.sigmoid(tf.Variable(tf.random_normal([]))))
-ed.get_session()
-inf = ed.KLpq({G1:part1},data={X2:tf.constant(50,dtype=tf.float32)})
+#part1 = ed.models.Bernoulli(probs=tf.nn.sigmoid(tf.Variable(tf.random_normal([]))))
+#ed.get_session()
+#inf = ed.KLpq({G1:part1},data={X2:tf.constant(50,dtype=tf.float32)})
 
-inf.run(n_samples=200)
-print(part1.probs.eval())
+#inf.run(n_samples=200)
+#print(part1.probs.eval())
+
+ed.get_session()
+cond = ed.complete_conditional(X3,{X2:tf.constant(50,dtype=tf.float32)})
+probs = 0
+for _ in range(100000):
+    s = round(cond.eval())
+    if s==50:
+        probs += 1
+probs = probs/100000
+print(probs)
