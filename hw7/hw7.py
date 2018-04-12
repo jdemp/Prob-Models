@@ -1,5 +1,5 @@
 import numpy as np
-
+import sklearn.decomposition as sk
 
 def generate_docs(alpha,beta,num_docs,num_words,num_topics,doc_length):
     a = np.full((1,num_topics), alpha)[0]
@@ -26,7 +26,15 @@ def generate_docs(alpha,beta,num_docs,num_words,num_topics,doc_length):
 
     return docs
 
+def modeling(docs, alpha, beta,num_words,num_topics):
+    learning = sk.LatentDirichletAllocation(num_topics,alpha,beta)
+    learning.fit(docs)
+    return (learning.transform(docs), learning.components_)
+
+
 
 if __name__ == '__main__':
     docs = generate_docs(.1, .01, 200, 20, 3,50)
-    
+    print(docs)
+    #docs_topics, components =modeling(docs,.1,.01,20,3)
+    #print(components)
