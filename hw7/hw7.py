@@ -14,27 +14,58 @@ def generate_docs(alpha,beta,num_docs,num_words,num_topics,doc_length):
         p = np.random.dirichlet(b)
         phi.append(p/np.sum(p))
 
-    docs = [[]]*num_docs
+    docs_readable = ['']*num_docs
+    docs_lda = [[]]*num_docs
     for d in range(num_docs):
-        doc = [0]*doc_length
+        doc_lda = [0]*num_words
+        doc = ''
         for n in range(doc_length):
             topic_draw = np.random.multinomial(1, theta[d],1)[0]
             topic = topic_draw.argmax()
             word_draw = np.random.multinomial(1, phi[topic],1)[0]
-            doc[n] = word_draw.argmax()
-        docs[d]=doc
+            word = word_draw.argmax()
+            doc_lda[word] +=1
+            c = word+65
+            doc += chr(c)
 
-    return docs
+        docs_readable[d] = doc
+        docs_lda[d] = doc_lda
+
+    return theta, phi, docs_readable, docs_lda
 
 def modeling(docs, alpha, beta,num_words,num_topics):
-    learning = sk.LatentDirichletAllocation(num_topics,alpha,beta)
+    learning = sk.LatentDirichletAllocation(num_topics,alpha,beta,learning_method='batch',total_samples=200,max_iter=1000)
     learning.fit(docs)
     return (learning.transform(docs), learning.components_)
 
 
+def compute_entropy_topics(docs_topics):
+    entropy = 0
+    for d in range(len(docs_topics)):
+        for t in range(len(docs_topics[d])):
+            entropy += docs_topics[d][t]*np.log(docs_topics[d][t])
+    entropy /= (-1 *len(docs_topics))
+    return entropy
+
+def compute_entropy_words(words_topics):
+    entropy = 0
+    for t in range(len(words_topics)):
+        for w in range(len(words_topics[t])):
+            entropy += words_topics[t][w] * np.log(words_topics[t][w])
+    entropy /= (-1*len(words_topics))
+    return entropy
+
 
 if __name__ == '__main__':
-    docs = generate_docs(.1, .01, 200, 20, 3,50)
-    print(docs)
-    #docs_topics, components =modeling(docs,.1,.01,20,3)
-    #print(components)
+    theta,phi,docs, docs_matrix = generate_docs(.1, .01, 200, 20, 3,50)
+    #print(phi)
+    docs_topics, components =modeling(docs_matrix,.1,.01,20,3)
+    word_probs = []
+    for i in range(len(components)):
+        word_probs.append(components[i]/np.sum(components[i]))
+
+    print(docs_topics)
+    print(phi)
+    print(word_probs)
+    print(compute_entropy_topics(docs_topics))
+    print(compute_entropy_words(word_probs))
