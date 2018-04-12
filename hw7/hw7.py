@@ -34,7 +34,7 @@ def generate_docs(alpha,beta,num_docs,num_words,num_topics,doc_length):
     return theta, phi, docs_readable, docs_lda
 
 def modeling(docs, alpha, beta,num_words,num_topics):
-    learning = sk.LatentDirichletAllocation(num_topics,alpha,beta,learning_method='batch',total_samples=200,max_iter=1000)
+    learning = sk.LatentDirichletAllocation(num_topics,alpha,beta,learning_method='batch',max_iter=5000)
     learning.fit(docs)
     return (learning.transform(docs), learning.components_)
 
@@ -64,8 +64,43 @@ if __name__ == '__main__':
     for i in range(len(components)):
         word_probs.append(components[i]/np.sum(components[i]))
 
-    print(docs_topics)
-    print(phi)
-    print(word_probs)
-    print(compute_entropy_topics(docs_topics))
-    print(compute_entropy_words(word_probs))
+    print('Doc Examples')
+    for d in docs:
+        print(d)
+
+    print('Actual Topic Probs')
+    for t in range(3):
+        print('Topic '+str(t)+' probs')
+        for w in range(20):
+            print (chr(w+65)+' \t'+str(phi[t][w]))
+        print('\n')
+    print('--------------------------------------------------')
+    print('LDA Topic Probs')
+    for t in range(3):
+        print('Topic '+str(t)+' probs')
+        for w in range(20):
+            print (chr(w+65)+' \t'+str(word_probs[t][w]))
+        print('\n')
+    print('--------------------------------------------------')
+
+
+    alphas = [.1,.2,.5,1]
+    betas = [.01,.02,.05,.1]
+
+    topic_entropy = []
+    for a in alphas:
+        docs_topics, components =modeling(docs_matrix,a,.01,20,3)
+        topic_entropy.append(compute_entropy_topics(docs_topics))
+
+    word_entropy = []
+    for b in betas:
+        docs_topics, components =modeling(docs_matrix,.1,b,20,3)
+        word_probs = []
+        for i in range(len(components)):
+            word_probs.append(components[i]/np.sum(components[i]))
+        word_entropy.append(compute_entropy_words(word_probs))
+
+    print('Here are the topic entropys')
+    print(topic_entropy)
+    print('Here are the world entropys')
+    print(word_entropy)
