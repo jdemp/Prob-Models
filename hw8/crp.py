@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def crp(customers,a):
     K = 1
@@ -10,7 +11,7 @@ def crp(customers,a):
             probs[k]=tables[k]/(n-1+a)
         p_new = a/(n-1+a)
         probs.append(p_new)
-        probs = probs/np.sum(probs)
+        #probs = probs/np.sum(probs)
         seat = np.random.multinomial(1, probs)
         table = seat.argmax()
         if table == K:
@@ -18,6 +19,7 @@ def crp(customers,a):
             tables.append(1)
         else:
             tables[table]+=1
+    return tables
 
 def crp_dpmm(points,a,o):
     K = 1
@@ -50,10 +52,25 @@ def crp_dpmm(points,a,o):
             s = np.random.normal(G[table],(o,o))
             samples[table].append(s)
 
-    print(samples)
-    print(tables)
-    print(G)
+    #print(samples)
+    #print(tables)
+    #print(G)
+    return samples
 
 if __name__ == '__main__':
-    #crp(500, .5)
-    crp_dpmm(5000, .5, .1)
+    tables = crp(500, .5)
+    print(tables)
+    x = range(0,len(tables),1)
+    print(x)
+    plt.bar(x,tables)
+    plt.show()
+    samples = crp_dpmm(500, .5, .1)
+    print (len(samples))
+    for cluster in samples:
+        X = []
+        Y = []
+        for s in cluster:
+            X.append(s[0])
+            Y.append(s[1])
+        plt.scatter(X,Y)
+    plt.show()
