@@ -35,6 +35,17 @@ def switched_system(steps,m,b,sigma):
         Z.append(z)
     return Z,Y
 
+def kalman_filter(measurements):
+    states = [(0,0)]
+    
+    for m in measurements:
+        pass
+
+
+def particle_filter(measurements):
+    pass
+
+
 if __name__ == '__main__':
     Z,Y = system(100,-.1,.1,.1)
     # plot point
