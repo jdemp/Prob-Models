@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def system(steps,a1,a2,sigma):
     y1 = 0
@@ -35,19 +36,41 @@ def switched_system(steps,m,b,sigma):
         Z.append(z)
     return Z,Y
 
-def kalman_filter(measurements):
-    states = [(0,0)]
-    
-    for m in measurements:
-        pass
+def kalman_filter(measurements,a1,a2):
+    X = []
+    F = np.matrix([[a1,a2],[1,0]])
+    F_t = np.transpose(F)
+    x = np.matrix([[0],[0]])
+    X.append(x)
+    P = np.matrix([[.2,0],[0,.2]])
+    P_hist = []
+    P_hist.append(P)
+    H = np.matrix([1,0])
+    H_t = np.transpose(H)
+    R = np.matrix([.2])
+    I = np.matrix([[1 ,0],[0 ,1]])
+    for m in measurements[1:]:
+        y = np.matrix([m])
+        #predict
+        x_pred = np.matmul(F, x)
+        P_pred = np.matmul(np.matmul(F,P), F_t)
 
-
-def particle_filter(measurements):
-    pass
+        #update
+        K = P_pred*H_t*np.linalg.inv(H*P_pred*H_t+R)
+        x = x_pred + K*(y-H*x_pred)
+        X.append(x)
+        P = (I-K*H)*P_pred
+        P_hist.append(P)
+        #print(P)
+    return X,P
 
 
 if __name__ == '__main__':
-    Z,Y = system(100,-.1,.1,.1)
+    Z,Y = system(100,-.5,.5,.1)
+    X,P = kalman_filter(Z, -.9, .5)
     # plot point
-    Z,Y = switched_system(100, [[.1,-.2], [-.2,.1], [.5,-.3]], .1, .1)
-    print(Z)
+    #Z,Y = switched_system(100, [[.1,-.2], [-.2,.1], [.5,-.3]], .1, .1)
+    for y in Y:
+        print(y)
+    for x in X:
+        print(x)
