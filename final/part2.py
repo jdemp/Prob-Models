@@ -49,11 +49,12 @@ def kalman_filter(measurements,a1,a2):
     H_t = np.transpose(H)
     R = np.matrix([.2])
     I = np.matrix([[1 ,0],[0 ,1]])
+    Q = np.matrix([[10 0],[0 10]])
     for m in measurements[1:]:
         y = np.matrix([m])
         #predict
         x_pred = np.matmul(F, x)
-        P_pred = np.matmul(np.matmul(F,P), F_t)
+        P_pred = np.matmul(np.matmul(F,P), F_t) + Q
 
         #update
         K = P_pred*H_t*np.linalg.inv(H*P_pred*H_t+R)
