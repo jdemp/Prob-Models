@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 def crp(customers,a):
     K = 1
     tables = [1]
+    prob_of_new_table = [1]
 
     for n in range(2,customers+1):
         probs = [0]*K
         for k in range(len(probs)):
             probs[k]=tables[k]/(n-1+a)
         p_new = a/(n-1+a)
+        prob_of_new_table.append(p_new)
         probs.append(p_new)
         #probs = probs/np.sum(probs)
         seat = np.random.multinomial(1, probs)
@@ -19,7 +21,7 @@ def crp(customers,a):
             tables.append(1)
         else:
             tables[table]+=1
-    return tables
+    return tables,prob_of_new_table
 
 def crp_dpmm(points,a,o):
     K = 1
@@ -58,19 +60,23 @@ def crp_dpmm(points,a,o):
     return samples
 
 if __name__ == '__main__':
-    tables = crp(500, .5)
+    tables,probs = crp(500, .5)
+
     print(tables)
     x = range(0,len(tables),1)
     print(x)
-    plt.bar(x,tables)
+
+    plt.plot(range(0,500),probs)
     plt.show()
-    samples = crp_dpmm(500, .5, .1)
-    print (len(samples))
-    for cluster in samples:
-        X = []
-        Y = []
-        for s in cluster:
-            X.append(s[0])
-            Y.append(s[1])
-        plt.scatter(X,Y)
-    plt.show()
+    # plt.bar(x,tables)
+    # plt.show()
+    # samples = crp_dpmm(500, .5, .1)
+    # print (len(samples))
+    # for cluster in samples:
+    #     X = []
+    #     Y = []
+    #     for s in cluster:
+    #         X.append(s[0])
+    #         Y.append(s[1])
+    #     plt.scatter(X,Y)
+    # plt.show()
