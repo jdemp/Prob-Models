@@ -1,8 +1,8 @@
 y0 = [0,0]';
 Y(:,1)=y0;
-sigma = .1;
-a1 = 1;
-a2 = -1;
+sigma = .2;
+a1 = 1.02;
+a2 = -1.01;
 Z(1) = Y(1,1) + normrnd(0,sigma);
 for i=2:500
     y2 = Y(1,i-1) + normrnd(0,sigma);
@@ -28,3 +28,8 @@ for i=2:500
     P_hist(i,:,:) = P;
     X(:,i) = x;
 end
+
+figure()
+plot(Y(1,:),Y(2,:))
+figure()
+plot(1:500,Z)

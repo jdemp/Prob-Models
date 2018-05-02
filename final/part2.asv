@@ -1,8 +1,8 @@
 y0 = [0,0]';
 Y(:,1)=y0;
-sigma = .1;
-a1 = 1;
-a2 = -1;
+sigma = .2;
+a1 = 1.02;
+a2 = -1.02;
 Z(1) = Y(1,1) + normrnd(0,sigma);
 for i=2:500
     y2 = Y(1,i-1) + normrnd(0,sigma);
@@ -12,16 +12,22 @@ for i=2:500
 end
 
 F = [a1 a2; 1 0];
-H = [1;0];
+H = [1 0];
 P = diag([10,10]);
+Q = diag([1,1]);
 R = 1;
 
-for i=1:500
-    x = F*Y(:,i);
-    P_k1 = F*P*F' + Q;
-    K = P_k1*H'*inv(H*P_k1*H'+R);
-  
-    x_est_k1 = x_k1 + K*(y-H*x_k1);
-    [m,n]=size(P_k1);
-    P_est_k1 = (eye(m)-K*H)*P_k1; 
+for i=2:500
+    x_est = F*Y(:,i-1);
+    P_est = F*P*F' + Q;
+    K = P_est*H'*inv(H*P_est*H'+R);
+    x = x_est + K*(Z(i)-H*x_est);
+    [m,n]=size(P_est);
+    P = (eye(m)-K*H)*P_est;
+    
+    P_hist(i,:,:) = P;
+    X(:,i) = x;
 end
+figure(
+plot(Y(1,:),Y(2,:))
+plot(1:500,Z)

@@ -1,0 +1,15 @@
+clear all
+[x,y]=meshgrid(-10:.1:10);
+F = feval()
+
+function f=fun(x,y)
+    mu = [1 1;5 -8;-4 3];
+    sigma = cat(3,[1 1],[2 2],[.5 .5]);
+    gm = gmdistribution(mu,sigma); 
+    p = pdf(gm,[x,y]);
+    f = x*p - y*p;
+end
+
+
+
+
