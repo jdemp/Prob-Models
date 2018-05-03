@@ -1,10 +1,11 @@
+clear all
 y0 = [0,0]';
 Y(:,1)=y0;
 sigma = .2;
 a1 = 1.02;
-a2 = -1.02;
+a2 = -1.01;
 Z(1) = Y(1,1) + normrnd(0,sigma);
-for i=2:500
+for i=2:250
     y2 = Y(1,i-1) + normrnd(0,sigma);
     y1 = a1*Y(1,i-1) + a2*Y(2,i-1) + normrnd(0,sigma);
     Y(:,i) = [y1,y2];
@@ -17,7 +18,7 @@ P = diag([10,10]);
 Q = diag([1,1]);
 R = 1;
 
-for i=2:500
+for i=2:250
     x_est = F*Y(:,i-1);
     P_est = F*P*F' + Q;
     K = P_est*H'*inv(H*P_est*H'+R);
@@ -25,9 +26,35 @@ for i=2:500
     [m,n]=size(P_est);
     P = (eye(m)-K*H)*P_est;
     
-    P_hist(i,:,:) = P;
+    sigma_y1 = sqrt(P(1,1));
+    sigma_y2 = sqrt(P(2,2));
     X(:,i) = x;
 end
-figure(
+
+figure()
+title('Actual Position')
 plot(Y(1,:),Y(2,:))
-plot(1:500,Z)
+
+figure()
+title('Measurements')
+plot(1:250,Z)
+
+figure()
+title('Recovered Position')
+plot(X(1,:),X(2,:))
+
+figure()
+hold on
+title('Y1 Estimate')
+plot(1:250,Y(1,:))
+plot(1:250,sig
+
+hold off
+
+figure()
+title('Y2 Estimate')
+plot(X(1,:),X(2,:))
+
+
+
+

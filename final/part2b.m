@@ -19,6 +19,12 @@ for i=2:500
 end
 
 figure()
+hold on 
+title('State')
 plot(Y(1,:),Y(2,:))
+hold off
 figure()
+hold on 
+title('Measurement')
 plot(1:500,Z)
+hold off
