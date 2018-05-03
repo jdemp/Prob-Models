@@ -4,6 +4,7 @@ import numpy as np
 from bayes_opt import BayesianOptimization
 from scipy.stats import multivariate_normal
 import matplotlib.pyplot as plt
+from sklearn.gaussian_process.kernels import RationalQuadratic, Matern
 
 uncertainty = [[0.01,0],[0,0.01]]
 
@@ -60,6 +61,17 @@ def placement(x,y):
 
 def noisy_placement(x,y):
     return placement(x, y) + np.random.normal(0,scale=2)
+
+def posterior(bo, x):
+    bo.gp.fit(bo.X, bo.Y)
+    mu, sigma = bo.gp.predict(x, return_std=True)
+    return mu, sigma
+
+def loss(real_mu,predicted_mu):
+    return real_mu-predicted_mu
+
+
+
 def main():
     """Run the demo."""
     # grab a test function
@@ -78,19 +90,63 @@ def main():
     # plt.contourf(X,Y,F)
     # plt.colorbar()
     # plt.show()
-
+    predicted_max={'ucb_matern':[],'poi_matern':[],'ucb_rq':[],'poi_rq':[]}
+    sigmas={'ucb_matern':[],'poi_matern':[],'ucb_rq':[],'poi_rq':[]}
+    dist_to_best={'ucb_matern':[],'poi_matern':[],'ucb_rq':[],'poi_rq':[]}
 
     boundaries=[-.8,0,.8,.7]
-    bo = BayesianOptimization(noisy_placement, {'x':(boundaries[0],boundaries[2]),'y':(boundaries[1],boundaries[3])})
-    bo.maximize(init_points=5,n_iter=1,kappa=5)
-    print(bo.res['max'])
-    best = bo.res['max']
-    true_opt = (-13.1036,.7437,.3025)
-    while  dist([best['max_params']['x'],best['max_params']['y']],[true_opt[1],true_opt[2]])>.1:
-        bo.maximize(init_points=0,n_iter=1,kappa=5)
-        best = bo.res['max']
-        if best['max_val']>true_opt[0]:
-            print('found a value higher than true opt')
+    ucb_matern = BayesianOptimization(noisy_placement, {'x':(boundaries[0],boundaries[2]),'y':(boundaries[1],boundaries[3])})
+    poi_matern = BayesianOptimization(noisy_placement, {'x':(boundaries[0],boundaries[2]),'y':(boundaries[1],boundaries[3])})
+    ucb_rq = BayesianOptimization(noisy_placement, {'x':(boundaries[0],boundaries[2]),'y':(boundaries[1],boundaries[3])})
+    poi_rq = BayesianOptimization(noisy_placement, {'x':(boundaries[0],boundaries[2]),'y':(boundaries[1],boundaries[3])})
+    ucb = {'kernel':RationalQuadratic()}
+    poi = {'kernel':RationalQuadratic()}
+
+
+    ucb_matern.maximize(init_points=5,n_iter=0,acq='ucb')
+    poi_matern.maximize(init_points=5,n_iter=0,acq='poi')
+    ucb_rq.maximize(init_points=5,n_iter=0,acq='ucb',**ucb)
+    poi_rq.maximize(init_points=5,n_iter=0,acq='poi',**poi)
+    opt_point = [.7437,.3025]
+    opt_value = -13.1036
+
+    for i in range(25):
+        ucb_matern.maximize(init_points=0,n_iter=1,acq='ucb')
+        poi_matern.maximize(init_points=0,n_iter=1,acq='poi')
+        ucb_rq.maximize(init_points=0,n_iter=1,acq='ucb',**ucb)
+        poi_rq.maximize(init_points=0,n_iter=1,acq='poi',**poi)
+
+        best = ucb_matern.res['max']
+        d = dist(opt_point,[best['max_params']['x'],best['max_params']['y']])
+        point = np.array([[best['max_params']['x']],[best['max_params']['y']]]).reshape(1,2)
+        predicted_max['ucb_matern'].append(-1*best['max_val'])
+        dist_to_best['ucb_matern'].append(d)
+
+        best = poi_matern.res['max']
+        d = dist(opt_point,[best['max_params']['x'],best['max_params']['y']])
+        point = np.array([[best['max_params']['x']],[best['max_params']['y']]]).reshape(1,2)
+        predicted_max['poi_matern'].append(-1*best['max_val'])
+        dist_to_best['poi_matern'].append(d)
+        #
+        best = ucb_rq.res['max']
+        d = dist(opt_point,[best['max_params']['x'],best['max_params']['y']])
+        point = np.array([[best['max_params']['x']],[best['max_params']['y']]]).reshape(1,2)
+        predicted_max['ucb_rq'].append(-1*best['max_val'])
+        dist_to_best['ucb_rq'].append(d)
+        #
+        best = poi_rq.res['max']
+        d = dist(opt_point,[best['max_params']['x'],best['max_params']['y']])
+        point = np.array([[best['max_params']['x']],[best['max_params']['y']]]).reshape(1,2)
+        predicted_max['poi_rq'].append(-1*best['max_val'])
+        dist_to_best['poi_rq'].append(d)
+
+    t = list(range(1,26))
+    plt.figure(1)
+    plt.plot(t,predicted_max['ucb_matern'],'r',t,predicted_max['poi_matern'],'g',t,predicted_max['ucb_rq'],'b',t,predicted_max['poi_rq'],'y')
+    plt.axhline(y=-1*opt_value, color='m', linestyle='-')
+    plt.figure(2)
+    plt.plot(t,dist_to_best['ucb_matern'],'r',t,dist_to_best['poi_matern'],'g',t,dist_to_best['ucb_rq'],'b',t,dist_to_best['poi_rq'],'y')
+    plt.show()
 
     # plot the final model
 
